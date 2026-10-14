@@ -1,0 +1,28 @@
+# Backend-only repo: this file sits at the repository ROOT (the backend files
+# are pushed to the repo root), so there is no rootDir here.
+services:
+  - type: web
+    name: interview-listener-api
+    runtime: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      # Pin the Python version Render builds with.
+      - key: PYTHON_VERSION
+        value: "3.12.6"
+      # Groq model used for answers. llama-3.1-8b-instant is now Enterprise/
+      # Sales-only and unavailable on the free tier, so use the fast, freely
+      # available GPT-OSS 20B instead.
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-20b
+      # Groq model used for speech-to-text on the /transcribe route.
+      - key: GROQ_STT_MODEL
+        value: whisper-large-v3-turbo
+      # Comma-separated allowed origins. "*" is fine for the mobile app; set to
+      # your web frontend origin to lock it down.
+      - key: ALLOWED_ORIGINS
+        value: "*"
